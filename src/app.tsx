@@ -17,7 +17,14 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const { exit } = useApp();
   const processesRef = useRef<CommandProcess[]>([]);
   const [numColumns, numRows] = useStdoutDimensions();
-  const numLogLines = numRows - 4; // TODO -- wish this wasn't hardcoded
+
+  // TODO -- wish this wasn't hardcoded.
+  // The 4 is the sum of non-log-line UI elements in the output.
+  // Specifically we have:
+  //  - 2 lines for border
+  //  - 1 line for filtering / cmd line
+  //  - 1 line for the empty line at the bottom of the terminal
+  const numLogLines = numRows - 4;
 
   const filteredLogs = useMemo(() => {
     return filter === null
