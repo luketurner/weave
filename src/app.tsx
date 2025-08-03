@@ -17,6 +17,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const { exit } = useApp();
   const processesRef = useRef<CommandProcess[]>([]);
   const [numColumns, numRows] = useStdoutDimensions();
+  const prevSelectedButton = useRef(selectedButton);
 
   const handleLogEntry = (entry: LogEntry) =>
     setLogs((prev) => [...prev, entry]);
@@ -42,6 +43,15 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     setScrollOffset((prev) =>
       Math.min(prev, Math.max(0, filteredLogs.length - numLogLines))
     );
+  }
+
+  if (prevSelectedButton.current !== selectedButton) {
+    prevSelectedButton.current = selectedButton;
+    if (selectedButton === 0) {
+      setFilter(null);
+    } else {
+      setFilter(selectedButton - 1);
+    }
   }
 
   useEffect(() => {
@@ -85,14 +95,6 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
 
     if (key.rightArrow) {
       setSelectedButton((prev) => Math.min(prev + 1, processConfigs.length));
-    }
-
-    if (key.return || input === " ") {
-      if (selectedButton === 0) {
-        setFilter(null);
-      } else {
-        setFilter(selectedButton - 1);
-      }
     }
   });
 
@@ -140,7 +142,9 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
             </Box>
           ))}
           <Spacer />
-          <Text dimColor>[↑/↓] scroll, [q] quit, [r] restart proc(s)</Text>
+          <Text dimColor>
+            [↑/↓] scroll, [←/→] filter, [q] quit, [r] restart proc(s)
+          </Text>
         </Box>
       </Box>
     </Box>
