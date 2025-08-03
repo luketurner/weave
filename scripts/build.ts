@@ -25,6 +25,8 @@ if (targets.includes(process.argv[2]!)) {
   await Promise.all(targets.map(buildTarget));
 }
 
+await $`bun pm pack --filename ${outdir}/weave-pkg.tar.gz`
+
 async function buildTarget(target: string) {
   const filename = `weave-${target.replace("bun-", "")}`;
   console.log(`Building ${target} into ${outdir}/${filename}...`);
