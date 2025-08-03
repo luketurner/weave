@@ -123,7 +123,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
                 bold={filter === cmd.id}
                 color={colorForCmd(cmd.id)}
               >
-                [{cmd.id}] {cmd.command.substring(0, 20)}
+                [{cmd.id}] {cmd.command.substring(0, 10)}
               </Text>
             </Box>
           ))}
