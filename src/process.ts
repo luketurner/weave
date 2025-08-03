@@ -30,6 +30,13 @@ export function spawnProcess(
     },
   });
 
+  handleLogEntry({
+    command: config.id,
+    text: [config.command, ...config.args].join(' '),
+    timestamp: new Date(),
+    stream: 'system'
+  })
+
   listen(proc.stdout, (chunk) => {
     handleLogEntry({
       command: config.id,
