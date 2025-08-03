@@ -119,7 +119,7 @@ async function executeGitCommands(newVersion: string) {
   console.log(`Updating package version to ${newVersion}...`);
   await $`bun pm version ${newVersion}`;
 
-  console.log(`Creating and pushing tag v${newVersion}...`);
+  console.log(`Pushing tag v${newVersion}...`);
   await $`git push origin tag v${newVersion}`;
 
   console.log("Pushing to main branch...");
