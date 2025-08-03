@@ -1,5 +1,6 @@
-import { useApp, useInput, Box, Text } from "ink";
-import { useState, useRef, useEffect } from "react";
+import useStdoutDimensions from "ink-use-stdout-dimensions";
+import { useApp, useInput, Box, Text, Spacer } from "ink";
+import { useState, useRef, useEffect, useMemo } from "react";
 import type { ProcessConfig } from "./args";
 import { spawnProcess, type CommandProcess, type LogEntry } from "./process";
 import { colorForCmd } from "./util";
@@ -15,6 +16,23 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const [selectedButton, setSelectedButton] = useState(0);
   const { exit } = useApp();
   const processesRef = useRef<CommandProcess[]>([]);
+  const [numColumns, numRows] = useStdoutDimensions();
+  const numLogLines = numRows - 4; // TODO -- wish this wasn't hardcoded
+
+  const filteredLogs = useMemo(() => {
+    return filter === null
+      ? logs
+      : logs.filter((log) => log.command === filter);
+  }, [logs, filter]);
+
+  const prevFilteredLogs = useRef(filteredLogs);
+
+  if (prevFilteredLogs.current !== filteredLogs) {
+    prevFilteredLogs.current = filteredLogs;
+    setScrollOffset((prev) =>
+      Math.min(prev, Math.max(0, filteredLogs.length - numLogLines))
+    );
+  }
 
   useEffect(() => {
     const processes: CommandProcess[] = processConfigs.map((proc) =>
@@ -34,7 +52,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
 
     if (key.upArrow) {
       setScrollOffset((prev) =>
-        Math.min(prev + 1, Math.max(0, logs.length - 10))
+        Math.min(prev + 1, Math.max(0, filteredLogs.length - numLogLines))
       );
     }
 
@@ -59,43 +77,32 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     }
   });
 
-  const filteredLogs =
-    filter === null ? logs : logs.filter((log) => log.command === filter);
-
   const visibleLogs = filteredLogs.slice(
-    Math.max(0, filteredLogs.length - 10 - scrollOffset),
+    Math.max(0, filteredLogs.length - numLogLines - scrollOffset),
     filteredLogs.length - scrollOffset
   );
 
   return (
-    <Box flexDirection="column" height="100%">
-      <Box
-        flexDirection="column"
-        flexGrow={1}
-        borderStyle="single"
-        borderColor="gray"
-      >
-        <Box paddingX={1}>
-          <Text bold>Log Output (↑/↓ to scroll, q to quit)</Text>
-        </Box>
-        <Box flexDirection="column" paddingX={1}>
-          {visibleLogs.length === 0 ? (
-            <Text dimColor>Waiting for output...</Text>
-          ) : (
-            visibleLogs.map((log, index) => (
-              <Box key={index}>
-                <Text color={colorForCmd(log.command) || "white"}>
-                  [{log.command}]
-                </Text>
-                <Text> {log.text}</Text>
-              </Box>
-            ))
-          )}
-        </Box>
-      </Box>
-
-      <Box borderStyle="single" borderColor="gray" paddingX={1}>
-        <Text>Filter: </Text>
+    <Box
+      flexDirection="column"
+      height={numRows - 1}
+      borderStyle="single"
+      borderColor="gray"
+    >
+      <Box flexDirection="column" flexGrow={1} paddingX={1}>
+        {visibleLogs.length === 0 ? (
+          <Text dimColor>Waiting for output...</Text>
+        ) : (
+          visibleLogs.map((log, index) => (
+            <Box key={index}>
+              <Text color={colorForCmd(log.command) || "white"}>
+                [{log.command}]
+              </Text>
+              <Text> {log.text}</Text>
+            </Box>
+          ))
+        )}
+        <Spacer />
         <Box gap={1}>
           <Box>
             <Text inverse={selectedButton === 0} bold={filter === null}>

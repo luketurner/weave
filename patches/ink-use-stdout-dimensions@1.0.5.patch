@@ -1,0 +1,39 @@
+diff --git a/LICENSE.md b/LICENSE.md
+old mode 100644
+new mode 100755
+diff --git a/README.md b/README.md
+old mode 100644
+new mode 100755
+diff --git a/build/index.d.ts b/build/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/build/index.js b/build/index.js
+old mode 100644
+new mode 100755
+diff --git a/package.json b/package.json
+old mode 100644
+new mode 100755
+index 18736303bf561f26a7163fb86bfb4f7be22cee78..6f3835258b095684407b976334868db7cf37e57c
+--- a/package.json
++++ b/package.json
+@@ -3,7 +3,7 @@
+   "version": "1.0.5",
+   "license": "MIT",
+   "description": "React hook for subscribing to stdout dimensions in Ink",
+-  "main": "./build/index.js",
++  "main": "./src/index.ts",
+   "repository": {
+     "type": "git",
+     "url": "git@github.com:cameronhunter/ink-monorepo.git",
+diff --git a/src/index.ts b/src/index.ts
+old mode 100644
+new mode 100755
+index ade39ea59b78a3ead42c590e684910e4e87cdbc9..04dd5427d69c8cce17090710b028142059227657
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -16,4 +16,4 @@ function useStdoutDimensions(): [number, number] {
+   return dimensions;
+ }
+ 
+-export = useStdoutDimensions;
++export default useStdoutDimensions;
