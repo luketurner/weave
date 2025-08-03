@@ -1,10 +1,10 @@
-import useStdoutDimensions from "ink-use-stdout-dimensions";
 import { useApp, useInput, Box, Text, Spacer } from "ink";
 import { useState, useRef, useEffect, useMemo } from "react";
 import type { ProcessConfig } from "./args";
 import { spawnProcess, type CommandProcess, type LogEntry } from "./process";
 import { colorForCmd } from "./util";
 import { UncontrolledTextInput } from "ink-text-input";
+import { useStdoutDimensions } from "./useStdoutDimensions";
 
 export interface AppProps {
   processConfigs: ProcessConfig[];
