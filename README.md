@@ -32,9 +32,6 @@ Download the binary for your platform from the [latest release](https://github.c
 ## Usage
 
 ```bash
-# display help
-weave --help
-
 # run a single command
 weave -- python -m http.server
 
