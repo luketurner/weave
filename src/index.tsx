@@ -5,4 +5,6 @@ import { App } from "./app";
 
 const args = parseArgs(process.argv.slice(2));
 
-render(<App processConfigs={args.processes} />);
+render(<App processConfigs={args.processes} />, {
+  exitOnCtrlC: false,
+});
