@@ -127,6 +127,8 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               </Text>
             </Box>
           ))}
+          <Spacer />
+          <Text dimColor>[↑/↓] scroll, [q] quit</Text>
         </Box>
       </Box>
     </Box>
