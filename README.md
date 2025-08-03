@@ -23,6 +23,7 @@ weave -- bun run dev -- bun run client:dev
 - Outputs in the log are prefixed with a colorized number like `[0]` to indicate which command they come from.
 - Filter log output to individual processes using left/right arrow keys.
 - Restart one or all processes with `r` command.
+- Save output to a file with `s` command.
 
 ## Usage
 
