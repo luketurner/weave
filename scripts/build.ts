@@ -28,7 +28,7 @@ if (targets.includes(process.argv[2]!)) {
 async function buildTarget(target: string) {
   const filename = `weave-${target.replace("bun-", "")}`;
   console.log(`Building ${target} into ${outdir}/${filename}...`);
-  await $`bun build --define RELEASE=true --compile --minify --sourcemap src/server.ts --outfile ${outdir}/${filename} --target ${target}`.env(
+  await $`bun build --define RELEASE=true --compile --minify --sourcemap src/index.tsx --outfile ${outdir}/${filename} --target ${target}`.env(
     {
       NODE_ENV: "production",
     },
