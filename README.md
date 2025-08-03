@@ -17,6 +17,10 @@ Well, now you can just do:
 weave -- bun run dev -- bun run client:dev
 ```
 
+## Installation
+
+Download the binary for your platform from the [latest release](https://github.com/luketurner/weave/releases/latest).
+
 ## Features
 
 - Runs multiple commands at once in separate processes, and interleave their output together in a TUI window.
