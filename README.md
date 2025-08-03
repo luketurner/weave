@@ -21,6 +21,12 @@ weave -- bun run dev -- bun run client:dev
 
 Download the binary for your platform from the [latest release](https://github.com/luketurner/weave/releases/latest).
 
+Or if you're using `bun` you can install it as a dependency (this won't work with `node`):
+
+```bash
+bun add git+https://github.com/luketurner/weave.git
+```
+
 ## Features
 
 - Runs multiple commands at once in separate processes, and interleave their output together in a TUI window.
