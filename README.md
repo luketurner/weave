@@ -37,3 +37,16 @@ weave -- python -m http.server
 # run multiple commands simultaneously
 weave -- bun run watch -- bun run client:watch -- python -m http.server
 ```
+
+## Development
+
+```bash
+# run script
+bun run dev
+
+# or:
+bin/weave
+
+# deploy a new version
+bun run version [VERSION]
+```
