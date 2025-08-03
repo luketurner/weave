@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 (2025-08-03)
+
+- fix broken import
+
+---
+
 ## 0.1.2 (2025-08-03)
 
 - Vendor the ink-use-stdout-dimensions dependency, since the bun patch approach breaks when weave is itself installed as a package.
