@@ -1,0 +1,22 @@
+{
+  "name": "weave",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "release": "bun run scripts/release.ts",
+    "compile": "tsc",
+    "format": "prettier --write .",
+    "dev": "bun src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "prettier": "^3.6.2"
+  }
+}
