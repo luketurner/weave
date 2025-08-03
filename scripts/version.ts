@@ -111,19 +111,19 @@ async function openEditor() {
 
 async function executeGitCommands(newVersion: string) {
   console.log("Adding CHANGELOG.md to git...");
-  await $`git add ${CHANGELOG_PATH}`.quiet();
+  await $`git add ${CHANGELOG_PATH}`;
 
   console.log(`Creating commit for version ${newVersion}...`);
-  await $`git commit -m "update changelog for ${newVersion}"`.quiet();
+  await $`git commit -m "update changelog for ${newVersion}"`;
 
   console.log(`Updating package version to ${newVersion}...`);
-  await $`bun pm version ${newVersion}`.quiet();
+  await $`bun pm version ${newVersion}`;
 
   console.log(`Creating and pushing tag ${newVersion}...`);
-  await $`git push origin tag ${newVersion}`.quiet();
+  await $`git push origin tag ${newVersion}`;
 
   console.log("Pushing to main branch...");
-  await $`git push origin main`.quiet();
+  await $`git push origin main`;
 }
 
 async function main() {
