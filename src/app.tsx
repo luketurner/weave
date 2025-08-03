@@ -18,6 +18,9 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const processesRef = useRef<CommandProcess[]>([]);
   const [numColumns, numRows] = useStdoutDimensions();
 
+  const handleLogEntry = (entry: LogEntry) =>
+    setLogs((prev) => [...prev, entry]);
+
   // TODO -- wish this wasn't hardcoded.
   // The 4 is the sum of non-log-line UI elements in the output.
   // Specifically we have:
@@ -43,7 +46,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
 
   useEffect(() => {
     const processes: CommandProcess[] = processConfigs.map((proc) =>
-      spawnProcess(proc, (entry) => setLogs((prev) => [...prev, entry]))
+      spawnProcess(proc, handleLogEntry)
     );
 
     processesRef.current = processes;
@@ -55,6 +58,15 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
         process.kill();
       });
       exit();
+    }
+
+    if (input === "r") {
+      processesRef.current.forEach((proc) => {
+        if (!filter || proc.config.id === filter) {
+          proc.process.kill();
+          Object.assign(proc, spawnProcess(proc.config, handleLogEntry));
+        }
+      });
     }
 
     if (key.upArrow) {
@@ -128,7 +140,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
             </Box>
           ))}
           <Spacer />
-          <Text dimColor>[↑/↓] scroll, [q] quit</Text>
+          <Text dimColor>[↑/↓] scroll, [q] quit, [r] restart proc(s)</Text>
         </Box>
       </Box>
     </Box>
