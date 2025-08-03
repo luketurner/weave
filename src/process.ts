@@ -1,5 +1,6 @@
 import { spawn } from "bun";
 import type { ProcessConfig } from "./args";
+import stripAnsi from "strip-ansi";
 
 export interface LogEntry {
   command: number;
@@ -59,6 +60,6 @@ async function listen(
 ) {
   const decoder = new TextDecoder("utf-8");
   for await (const chunk of stream) {
-    decoder.decode(chunk).split("\n").map(handler);
+    stripAnsi(decoder.decode(chunk)).split("\n").map(handler);
   }
 }
