@@ -2,13 +2,27 @@
 
 Weave is a TUI for running multiple long-running commands at once and "weaving together" their output.
 
+For example, have you ever wanted to run two different dev commands at once? Like:
+
+```bash
+bun run dev        # start dev server
+bun run client:dev # start client bundle watcher
+```
+
+But you have to run them in separate terminals, tmux windows, or something? Or use `&` to spin them into background processes, which doesn't have great UX?
+
+Well, now you can just do:
+
+```bash
+weave -- bun run dev -- bun run client:dev
+```
+
 ## Features
 
-- Runs multiple commands at once in separate processes.
-- View a "live tail" of the output from all the commands interleaved together, called the log.
+- Runs multiple commands at once in separate processes, and interleave their output together in a TUI window.
 - Outputs in the log are prefixed with a colorized number like `[0]` to indicate which command they come from.
-- The TUI supports infinite scrollback within the log window.
-- Includes buttons at the bottom of the window to filter the log to specific commands.
+- Filter log output to individual processes using left/right arrow keys.
+- Restart one or all processes with `r` command.
 
 ## Usage
 
