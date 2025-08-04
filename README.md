@@ -39,9 +39,10 @@ bun add -g weave@https://github.com/luketurner/weave/releases/download/v0.1.3/we
 
 - Runs multiple commands at once in separate processes, and interleave their output together in a TUI window.
 - Outputs in the log are prefixed with a colorized number like `[0]` to indicate which command they come from.
-- Filter log output to individual processes using left/right arrow keys.
-- Restart one or all processes with `r` command.
-- Save output to a file with `s` command.
+- Filter log output to individual processes.
+- Restart one or all processes.
+- Save output to a file.
+- Full mouse support (scrolling, clicking on buttons) -- doesn't work on Windows.
 
 ## Usage
 
