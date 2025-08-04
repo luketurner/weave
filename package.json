@@ -24,6 +24,7 @@
   "dependencies": {
     "@types/react": "^19.1.9",
     "ink": "^6.1.0",
+    "ink-mouse-alt": "git+https://github.com/luketurner/ink-mouse-alt.git",
     "ink-text-input": "^6.0.0",
     "prettier": "^3.6.2",
     "react": "^19.1.1",

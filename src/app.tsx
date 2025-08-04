@@ -1,26 +1,71 @@
-import { useApp, useInput, Box, Text, Spacer } from "ink";
-import { useState, useRef, useEffect, useMemo } from "react";
+import {
+  useApp,
+  useInput,
+  Box,
+  Text,
+  Spacer,
+  type DOMElement,
+  type TextProps,
+} from "ink";
+import { useState, useRef, useEffect, useMemo, type RefObject } from "react";
 import type { ProcessConfig } from "./args";
 import { spawnProcess, type CommandProcess, type LogEntry } from "./process";
 import { colorForCmd } from "./util";
-import { UncontrolledTextInput } from "ink-text-input";
+import TextInput, { type Props } from "ink-text-input";
 import { useStdoutDimensions } from "./useStdoutDimensions";
+import {
+  MouseProvider,
+  useMouse,
+  useOnMouseClick,
+  useOnMouseHover,
+} from "ink-mouse-alt";
+import stripAnsi from "strip-ansi";
 
 export interface AppProps {
   processConfigs: ProcessConfig[];
+}
+
+interface TextButtonProps extends TextProps {
+  onClick: () => void;
+}
+
+function TextButton({ onClick, ...props }: TextButtonProps) {
+  const ref = useRef<DOMElement>(null);
+  useOnMouseClick(ref as RefObject<DOMElement>, (isClicking) => {
+    if (isClicking) onClick();
+  });
+
+  return (
+    <Box ref={ref}>
+      <Text {...props}></Text>
+    </Box>
+  );
+}
+
+function SafeUncontrolledTextInput(props: Omit<Props, "value" | "onChange">) {
+  const [value, setValue] = useState("");
+  return (
+    <TextInput
+      value={value}
+      // Note -- it seems stripAnsi isn't stripping mouse escape sequences like [<35;101;11m
+      // so we strip them ourselves with this janky regex
+      onChange={(v) =>
+        setValue(stripAnsi(v).replace(/\[<\d+;\d+;\d+[mM]/g, ""))
+      }
+      {...props}
+    />
+  );
 }
 
 export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [filter, setFilter] = useState<number | null>(null);
-  const [selectedButton, setSelectedButton] = useState(0);
   const [saveModal, setSaveModal] = useState(false);
   const { exit } = useApp();
   const processesRef = useRef<CommandProcess[]>([]);
   const [numColumns, numRows] = useStdoutDimensions();
   const [error, setError] = useState("");
-  const prevSelectedButton = useRef(selectedButton);
   const errorTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // TODO -- wish this wasn't hardcoded.
@@ -54,22 +99,34 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const handleLogEntry = (entry: LogEntry) =>
     setLogs((prev) => [...prev, entry]);
 
+  const restartFilteredProcesses = () => {
+    processesRef.current.forEach((proc) => {
+      if (!filter || proc.config.id === filter) {
+        proc.process.kill();
+        Object.assign(proc, spawnProcess(proc.config, handleLogEntry));
+      }
+    });
+  };
+
+  const quit = () => {
+    processesRef.current.forEach(({ process }) => {
+      process.kill();
+    });
+    exit();
+  };
+
+  const openSaveModal = () => {
+    setSaveModal(true);
+  };
+
   const prevFilteredLogs = useRef(filteredLogs);
 
+  // Todo -- replace with useState instead of useRef
   if (prevFilteredLogs.current !== filteredLogs) {
     prevFilteredLogs.current = filteredLogs;
     setScrollOffset((prev) =>
       Math.min(prev, Math.max(0, filteredLogs.length - numLogLines))
     );
-  }
-
-  if (prevSelectedButton.current !== selectedButton) {
-    prevSelectedButton.current = selectedButton;
-    if (selectedButton === 0) {
-      setFilter(null);
-    } else {
-      setFilter(selectedButton - 1);
-    }
   }
 
   useEffect(() => {
@@ -103,23 +160,15 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     }
 
     if (input === "q" || (key.ctrl && input === "c")) {
-      processesRef.current.forEach(({ process }) => {
-        process.kill();
-      });
-      exit();
+      quit();
     }
 
     if (input === "r") {
-      processesRef.current.forEach((proc) => {
-        if (!filter || proc.config.id === filter) {
-          proc.process.kill();
-          Object.assign(proc, spawnProcess(proc.config, handleLogEntry));
-        }
-      });
+      restartFilteredProcesses();
     }
 
     if (input === "s") {
-      setSaveModal(true);
+      openSaveModal();
     }
 
     if (key.upArrow) {
@@ -133,11 +182,13 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     }
 
     if (key.leftArrow) {
-      setSelectedButton((prev) => Math.max(prev - 1, 0));
+      setFilter((prev) => (prev === null ? null : Math.max(prev - 1, 0)));
     }
 
     if (key.rightArrow) {
-      setSelectedButton((prev) => Math.min(prev + 1, processConfigs.length));
+      setFilter((prev) =>
+        prev === null ? 0 : Math.min(prev + 1, processConfigs.length)
+      );
     }
   });
 
@@ -147,64 +198,76 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   );
 
   return (
-    <Box
-      flexDirection="column"
-      height={numRows - 1}
-      borderStyle="single"
-      borderColor="gray"
-    >
-      <Box flexDirection="column" flexGrow={1} paddingX={1}>
-        {visibleLogs.length === 0 ? (
-          <Text dimColor>Waiting for output...</Text>
-        ) : (
-          visibleLogs.map((log, index) => (
-            <Box key={index}>
-              <Text color={colorForCmd(log.command) || "white"}>
-                [{log.command}]
-              </Text>
-              <Text> {log.text}</Text>
-            </Box>
-          ))
-        )}
-        <Spacer />
-        {error ? (
-          <Box>
-            <Text color="redBright">{error}</Text>
-            <Spacer />
-            <Text dimColor>[any key] hide error</Text>
-          </Box>
-        ) : saveModal ? (
-          <Box gap={1}>
-            <Text>Save to file:</Text>
-            <UncontrolledTextInput onSubmit={handleSaveFile} />
-            <Spacer />
-            <Text dimColor>[ret] submit, [esc] cancel</Text>
-          </Box>
-        ) : (
-          <Box gap={1}>
+    <MouseProvider>
+      <Box
+        flexDirection="column"
+        height={numRows - 1}
+        borderStyle="single"
+        borderColor="gray"
+      >
+        <Box flexDirection="column" flexGrow={1} paddingX={1}>
+          {visibleLogs.length === 0 ? (
+            <Text dimColor>Waiting for output...</Text>
+          ) : (
+            visibleLogs.map((log, index) => (
+              <Box key={index}>
+                <Text color={colorForCmd(log.command) || "white"}>
+                  [{log.command}]
+                </Text>
+                <Text> {log.text}</Text>
+              </Box>
+            ))
+          )}
+          <Spacer />
+          {error ? (
             <Box>
-              <Text inverse={selectedButton === 0} bold={filter === null}>
-                All
-              </Text>
+              <Text color="redBright">{error}</Text>
+              <Spacer />
+              <Text dimColor>[any key] hide error</Text>
             </Box>
-            {processConfigs.map((cmd) => (
-              <Box key={cmd.id}>
-                <Text
-                  inverse={selectedButton === cmd.id + 1}
+          ) : saveModal ? (
+            <Box gap={1}>
+              <Text>Save to file:</Text>
+              <SafeUncontrolledTextInput onSubmit={handleSaveFile} />
+              <Spacer />
+              <Text dimColor>[ret] submit, [esc] cancel</Text>
+            </Box>
+          ) : (
+            <Box gap={1}>
+              <Box>
+                <TextButton
+                  inverse={filter === null}
+                  bold={filter === null}
+                  onClick={() => setFilter(null)}
+                >
+                  All
+                </TextButton>
+              </Box>
+              {processConfigs.map((cmd) => (
+                <TextButton
+                  key={cmd.id}
+                  inverse={filter === cmd.id}
                   bold={filter === cmd.id}
                   color={colorForCmd(cmd.id)}
+                  onClick={() => setFilter(cmd.id)}
                 >
                   [{cmd.id}] {cmd.command.substring(0, 10)}
-                </Text>
-              </Box>
-            ))}
-            <Spacer />
-            <Text dimColor>
-              [↑/↓] scroll, [←/→] filter, [q] quit, [r] restart proc(s)
-            </Text>
-          </Box>
-        )}
+                </TextButton>
+              ))}
+              <Spacer />
+              <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
+              <Text dimColor>/</Text>
+              <TextButton onClick={restartFilteredProcesses}>
+                [r] restart
+              </TextButton>
+              <Text dimColor>/</Text>
+              <TextButton onClick={openSaveModal}>[s] save logs</TextButton>
+              <Text dimColor>/</Text>
+              <TextButton onClick={quit}>[q] quit</TextButton>
+            </Box>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </MouseProvider>
   );
 };
