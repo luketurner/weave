@@ -16,6 +16,7 @@ import { useStdoutDimensions } from "./useStdoutDimensions";
 import {
   useMouseAction,
   useOnMouseClick,
+  useOnMouseState,
 } from "ink-mouse-alt";
 import stripAnsi from "strip-ansi";
 
@@ -29,13 +30,14 @@ interface TextButtonProps extends TextProps {
 
 function TextButton({ onClick, ...props }: TextButtonProps) {
   const ref = useRef<DOMElement>(null);
+  const { hovering } = useOnMouseState(ref as RefObject<DOMElement>);
   useOnMouseClick(ref as RefObject<DOMElement>, (isClicking) => {
     if (isClicking) onClick();
   });
 
   return (
     <Box ref={ref}>
-      <Text {...props}></Text>
+      <Text underline={hovering} {...props}></Text>
     </Box>
   );
 }
