@@ -27,6 +27,12 @@ Or if you're using `bun` you can install it as a dependency (this won't work wit
 bun add git+https://github.com/luketurner/weave.git
 ```
 
+You can also install a specific version globally using the released tarballs:
+
+```bash
+bun add -g weave@https://github.com/luketurner/weave/releases/download/v0.1.3/weave-pkg.tar.gz
+```
+
 ## Features
 
 - Runs multiple commands at once in separate processes, and interleave their output together in a TUI window.
