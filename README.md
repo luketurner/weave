@@ -1,5 +1,7 @@
 # weave
 
+![weave demo](./docs/weave.gif)
+
 Weave is a TUI for running multiple long-running commands at once and "weaving together" their output.
 
 For example, have you ever wanted to run two different dev commands at once? Like:
