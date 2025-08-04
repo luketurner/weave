@@ -7,12 +7,15 @@ export interface LogEntry {
   text: string;
   timestamp: Date;
   stream: "stdout" | "stderr" | "system";
+  index: number;
 }
 
 export interface CommandProcess {
   config: ProcessConfig;
   process: ReturnType<typeof spawn>;
 }
+
+let globalLogIndex = 0;
 
 export function spawnProcess(
   config: ProcessConfig,
@@ -26,16 +29,18 @@ export function spawnProcess(
         text: `Process exited with code ${exitCode}`,
         timestamp: new Date(),
         stream: "system",
+        index: globalLogIndex++,
       });
     },
   });
 
   handleLogEntry({
     command: config.id,
-    text: [config.command, ...config.args].join(' '),
+    text: [config.command, ...config.args].join(" "),
     timestamp: new Date(),
-    stream: 'system'
-  })
+    stream: "system",
+    index: globalLogIndex++,
+  });
 
   listen(proc.stdout, (chunk) => {
     handleLogEntry({
@@ -43,6 +48,7 @@ export function spawnProcess(
       text: chunk,
       timestamp: new Date(),
       stream: "stdout",
+      index: globalLogIndex++,
     });
   });
 
@@ -52,6 +58,7 @@ export function spawnProcess(
       text: chunk,
       timestamp: new Date(),
       stream: "stderr",
+      index: globalLogIndex++,
     });
   });
 
