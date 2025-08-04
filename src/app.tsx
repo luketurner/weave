@@ -69,7 +69,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const errorTimeout = useRef<NodeJS.Timeout | null>(null);
   const mouseAction = useMouseAction();
   const [scrollDelay, setScrollDelay] = useState(0);
-  const [shiftMode, setShiftMode] = useState(false);
+  const [showTimestamps, setShowTimestamps] = useState(true);
 
   // TODO -- wish this wasn't hardcoded.
   // The 4 is the sum of non-log-line UI elements in the output.
@@ -132,6 +132,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     setSaveModal(true);
   };
 
+  const toggleTimestamps = () => {
+    setShowTimestamps((prev) => !prev);
+  };
+
   const prevFilteredLogs = useRef(filteredLogs);
 
   // Todo -- replace with useState instead of useRef
@@ -184,6 +188,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
       openSaveModal();
     }
 
+    if (input === "t") {
+      toggleTimestamps();
+    }
+
     if (key.upArrow) {
       scrollUp(1);
     }
@@ -201,8 +209,6 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
         prev === null ? 0 : Math.min(prev + 1, processConfigs.length)
       );
     }
-
-    if (key.shift) {}
   });
 
   const visibleLogs = filteredLogs.slice(
@@ -237,12 +243,23 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
         {visibleLogs.length === 0 ? (
           <Text dimColor>Waiting for output...</Text>
         ) : (
-          visibleLogs.map((log, index) => (
-            <Box key={index}>
+          visibleLogs.map((log) => (
+            <Box gap={1} key={log.index}>
+              {showTimestamps ? (
+                <Text dimColor>
+                  {log.timestamp.toLocaleTimeString(undefined, {
+                    hour: "2-digit",
+                    hour12: false,
+                    minute: "2-digit",
+                    second: "2-digit",
+                    fractionalSecondDigits: 3,
+                  })}
+                </Text>
+              ) : null}
               <Text color={colorForCmd(log.command) || "white"}>
                 [{log.command}]
               </Text>
-              <Text> {log.text}</Text>
+              <Text>{log.text}</Text>
             </Box>
           ))
         )}
@@ -285,13 +302,15 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
             <Spacer />
             <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
             <Text dimColor>/</Text>
+            <TextButton onClick={toggleTimestamps}>[t]imestamps</TextButton>
+            <Text dimColor>/</Text>
             <TextButton onClick={restartFilteredProcesses}>
-              [r] restart
+              [r]estart
             </TextButton>
             <Text dimColor>/</Text>
-            <TextButton onClick={openSaveModal}>[s] save logs</TextButton>
+            <TextButton onClick={openSaveModal}>[s]ave logs</TextButton>
             <Text dimColor>/</Text>
-            <TextButton onClick={quit}>[q] quit</TextButton>
+            <TextButton onClick={quit}>[q]uit</TextButton>
           </Box>
         )}
       </Box>
