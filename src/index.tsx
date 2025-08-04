@@ -2,9 +2,18 @@
 import { render } from "ink";
 import { parseArgs } from "./args";
 import { App } from "./app";
+import { MouseProvider } from "ink-mouse-alt";
 
 const args = parseArgs(process.argv.slice(2));
 
-render(<App processConfigs={args.processes} />, {
+const Root = () => {
+  return (
+    <MouseProvider>
+      <App processConfigs={args.processes} />
+    </MouseProvider>
+  );
+};
+
+render(<Root />, {
   exitOnCtrlC: false,
 });

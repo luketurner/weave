@@ -14,10 +14,8 @@ import { colorForCmd } from "./util";
 import TextInput, { type Props } from "ink-text-input";
 import { useStdoutDimensions } from "./useStdoutDimensions";
 import {
-  MouseProvider,
-  useMouse,
+  useMouseAction,
   useOnMouseClick,
-  useOnMouseHover,
 } from "ink-mouse-alt";
 import stripAnsi from "strip-ansi";
 
@@ -67,6 +65,9 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const [numColumns, numRows] = useStdoutDimensions();
   const [error, setError] = useState("");
   const errorTimeout = useRef<NodeJS.Timeout | null>(null);
+  const mouseAction = useMouseAction();
+  const [scrollDelay, setScrollDelay] = useState(0);
+  const [shiftMode, setShiftMode] = useState(false);
 
   // TODO -- wish this wasn't hardcoded.
   // The 4 is the sum of non-log-line UI elements in the output.
@@ -113,6 +114,16 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
       process.kill();
     });
     exit();
+  };
+
+  const scrollUp = (n: number) => {
+    setScrollOffset((prev) =>
+      Math.min(prev + n, Math.max(0, filteredLogs.length - numLogLines))
+    );
+  };
+
+  const scrollDown = (n: number) => {
+    setScrollOffset((prev) => Math.max(prev - n, 0));
   };
 
   const openSaveModal = () => {
@@ -172,13 +183,11 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     }
 
     if (key.upArrow) {
-      setScrollOffset((prev) =>
-        Math.min(prev + 1, Math.max(0, filteredLogs.length - numLogLines))
-      );
+      scrollUp(1);
     }
 
     if (key.downArrow) {
-      setScrollOffset((prev) => Math.max(prev - 1, 0));
+      scrollDown(1);
     }
 
     if (key.leftArrow) {
@@ -190,6 +199,8 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
         prev === null ? 0 : Math.min(prev + 1, processConfigs.length)
       );
     }
+
+    if (key.shift) {}
   });
 
   const visibleLogs = filteredLogs.slice(
@@ -197,77 +208,91 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     filteredLogs.length - scrollOffset
   );
 
+  useEffect(() => {
+    if (scrollDelay > Date.now()) return;
+
+    const linesToScroll = Math.min(5, Math.ceil(numLogLines / 2));
+
+    if (mouseAction === "scrollup") {
+      scrollUp(linesToScroll);
+      setScrollDelay(Date.now() + 5);
+    }
+
+    if (mouseAction === "scrolldown") {
+      scrollDown(linesToScroll);
+      setScrollDelay(Date.now() + 5);
+    }
+  }, [mouseAction, scrollDelay, setScrollDelay, scrollUp, scrollDown]);
+
   return (
-    <MouseProvider>
-      <Box
-        flexDirection="column"
-        height={numRows - 1}
-        borderStyle="single"
-        borderColor="gray"
-      >
-        <Box flexDirection="column" flexGrow={1} paddingX={1}>
-          {visibleLogs.length === 0 ? (
-            <Text dimColor>Waiting for output...</Text>
-          ) : (
-            visibleLogs.map((log, index) => (
-              <Box key={index}>
-                <Text color={colorForCmd(log.command) || "white"}>
-                  [{log.command}]
-                </Text>
-                <Text> {log.text}</Text>
-              </Box>
-            ))
-          )}
-          <Spacer />
-          {error ? (
+    <Box
+      flexDirection="column"
+      height={numRows - 1}
+      borderStyle="single"
+      borderColor="gray"
+    >
+      <Box flexDirection="column" flexGrow={1} paddingX={1}>
+        {visibleLogs.length === 0 ? (
+          <Text dimColor>Waiting for output...</Text>
+        ) : (
+          visibleLogs.map((log, index) => (
+            <Box key={index}>
+              <Text color={colorForCmd(log.command) || "white"}>
+                [{log.command}]
+              </Text>
+              <Text> {log.text}</Text>
+            </Box>
+          ))
+        )}
+        <Spacer />
+        {error ? (
+          <Box>
+            <Text color="redBright">{error}</Text>
+            <Spacer />
+            <Text dimColor>[any key] hide error</Text>
+          </Box>
+        ) : saveModal ? (
+          <Box gap={1}>
+            <Text>Save to file:</Text>
+            <SafeUncontrolledTextInput onSubmit={handleSaveFile} />
+            <Spacer />
+            <Text dimColor>[ret] submit, [esc] cancel</Text>
+          </Box>
+        ) : (
+          <Box gap={1}>
             <Box>
-              <Text color="redBright">{error}</Text>
-              <Spacer />
-              <Text dimColor>[any key] hide error</Text>
-            </Box>
-          ) : saveModal ? (
-            <Box gap={1}>
-              <Text>Save to file:</Text>
-              <SafeUncontrolledTextInput onSubmit={handleSaveFile} />
-              <Spacer />
-              <Text dimColor>[ret] submit, [esc] cancel</Text>
-            </Box>
-          ) : (
-            <Box gap={1}>
-              <Box>
-                <TextButton
-                  inverse={filter === null}
-                  bold={filter === null}
-                  onClick={() => setFilter(null)}
-                >
-                  All
-                </TextButton>
-              </Box>
-              {processConfigs.map((cmd) => (
-                <TextButton
-                  key={cmd.id}
-                  inverse={filter === cmd.id}
-                  bold={filter === cmd.id}
-                  color={colorForCmd(cmd.id)}
-                  onClick={() => setFilter(cmd.id)}
-                >
-                  [{cmd.id}] {cmd.command.substring(0, 10)}
-                </TextButton>
-              ))}
-              <Spacer />
-              <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
-              <Text dimColor>/</Text>
-              <TextButton onClick={restartFilteredProcesses}>
-                [r] restart
+              <TextButton
+                inverse={filter === null}
+                bold={filter === null}
+                onClick={() => setFilter(null)}
+              >
+                All
               </TextButton>
-              <Text dimColor>/</Text>
-              <TextButton onClick={openSaveModal}>[s] save logs</TextButton>
-              <Text dimColor>/</Text>
-              <TextButton onClick={quit}>[q] quit</TextButton>
             </Box>
-          )}
-        </Box>
+            {processConfigs.map((cmd) => (
+              <TextButton
+                key={cmd.id}
+                inverse={filter === cmd.id}
+                bold={filter === cmd.id}
+                color={colorForCmd(cmd.id)}
+                onClick={() => setFilter(cmd.id)}
+              >
+                [{cmd.id}] {cmd.command.substring(0, 10)}
+              </TextButton>
+            ))}
+            <Spacer />
+            <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
+            <Text dimColor>/</Text>
+            <TextButton onClick={restartFilteredProcesses}>
+              [r] restart
+            </TextButton>
+            <Text dimColor>/</Text>
+            <TextButton onClick={openSaveModal}>[s] save logs</TextButton>
+            <Text dimColor>/</Text>
+            <TextButton onClick={quit}>[q] quit</TextButton>
+          </Box>
+        )}
       </Box>
-    </MouseProvider>
+    </Box>
   );
 };
