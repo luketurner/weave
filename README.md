@@ -62,6 +62,6 @@ bun run dev
 # or:
 bin/weave
 
-# deploy a new version
-bun run version [VERSION]
+# release a new version
+bun run release:new [VERSION]
 ```
