@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 (2025-08-05)
+
+- Implement "tail mode" so the user can either view live logs as they come in, or look at logs in the scrollback buffer without them moving around.
+
+---
+
 ## 0.2.1 (2025-08-05)
 
 - Explicitly handle lines that are longer than the max width of the display window.
