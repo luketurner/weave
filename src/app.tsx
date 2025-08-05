@@ -78,6 +78,12 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   //  - 1 line for filtering / cmd line
   //  - 1 line for the empty line at the bottom of the terminal
   const numLogLines = numRows - 4;
+  // For this we have:
+  //  - 13 for timestamp + gap
+  //  - 4 for label (e.g. [0]) + gap
+  //  - 2 for borders
+  //  - 2 for padding
+  const maxLineLength = numColumns - 8 - (showTimestamps ? 13 : 0);
 
   const filteredLogs = useMemo(() => {
     return filter === null
@@ -106,7 +112,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     processesRef.current.forEach((proc) => {
       if (!filter || proc.config.id === filter) {
         proc.process.kill();
-        Object.assign(proc, spawnProcess(proc.config, handleLogEntry));
+        Object.assign(
+          proc,
+          spawnProcess(proc.config, handleLogEntry, { maxLineLength })
+        );
       }
     });
   };
@@ -157,7 +166,11 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
 
   useEffect(() => {
     const processes: CommandProcess[] = processConfigs.map((proc) =>
-      spawnProcess(proc, handleLogEntry)
+      // Note -- having to pass maxLineLength in here is a hack that doesn't work when
+      // the window is resized after opening. Should really be used somewhere else,
+      // but the scrolling logic gets way less intuitive if we allow a single entry to
+      // be more than one line.
+      spawnProcess(proc, handleLogEntry, { maxLineLength })
     );
 
     processesRef.current = processes;
@@ -245,21 +258,38 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
         ) : (
           visibleLogs.map((log) => (
             <Box gap={1} key={log.index}>
-              {showTimestamps ? (
-                <Text dimColor>
-                  {log.timestamp.toLocaleTimeString(undefined, {
-                    hour: "2-digit",
-                    hour12: false,
-                    minute: "2-digit",
-                    second: "2-digit",
-                    fractionalSecondDigits: 3,
-                  })}
-                </Text>
-              ) : null}
-              <Text color={colorForCmd(log.command) || "white"}>
-                [{log.command}]
-              </Text>
-              <Text>{log.text}</Text>
+              {log.continuation ? (
+                // don't show timestamp/etc. for continuations,
+                // but maintain the same alignment with this spacer
+                <Box width={3 + (showTimestamps ? 13 : 0)}>
+                  <Spacer />
+                  <Text>...</Text>
+                </Box>
+              ) : (
+                <>
+                  {showTimestamps ? (
+                    <Box flexShrink={0}>
+                      <Text dimColor>
+                        {log.timestamp.toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          hour12: false,
+                          minute: "2-digit",
+                          second: "2-digit",
+                          fractionalSecondDigits: 3,
+                        })}
+                      </Text>
+                    </Box>
+                  ) : null}
+                  <Box flexShrink={0}>
+                    <Text color={colorForCmd(log.command) || "white"}>
+                      [{log.command}]
+                    </Text>
+                  </Box>
+                </>
+              )}
+              <Box>
+                <Text>{log.text}</Text>
+              </Box>
             </Box>
           ))
         )}

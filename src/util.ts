@@ -11,3 +11,7 @@ export const COLORS = [
 export function colorForCmd(id: number) {
   return COLORS[id % COLORS.length]!;
 }
+
+export function splitIntoChunks(str: string, size: number) {
+  return str.match(new RegExp(".{1," + size + "}", "g")) || [];
+}

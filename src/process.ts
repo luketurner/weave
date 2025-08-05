@@ -1,13 +1,17 @@
 import { spawn } from "bun";
 import type { ProcessConfig } from "./args";
 import stripAnsi from "strip-ansi";
+import { splitIntoChunks } from "./util";
+
+type Stream = "stdout" | "stderr" | "system";
 
 export interface LogEntry {
   command: number;
   text: string;
   timestamp: Date;
-  stream: "stdout" | "stderr" | "system";
+  stream: Stream;
   index: number;
+  continuation: boolean;
 }
 
 export interface CommandProcess {
@@ -19,47 +23,40 @@ let globalLogIndex = 0;
 
 export function spawnProcess(
   config: ProcessConfig,
-  handleLogEntry: (e: LogEntry) => void
+  handleLogEntry: (e: LogEntry) => void,
+  { maxLineLength }: { maxLineLength: number }
 ): CommandProcess {
+  const buildEntries = (stream: Stream, fullText: string) => {
+    const timestamp = new Date();
+    let continuation = false;
+    for (const chunk of splitIntoChunks(fullText, maxLineLength)) {
+      handleLogEntry({
+        command: config.id,
+        text: chunk,
+        timestamp,
+        stream,
+        index: globalLogIndex++,
+        continuation,
+      });
+      continuation = true;
+    }
+  };
+
   const proc = spawn([config.command, ...config.args], {
     stdio: ["ignore", "pipe", "pipe"],
     onExit(_proc, exitCode) {
-      handleLogEntry({
-        command: config.id,
-        text: `Process exited with code ${exitCode}`,
-        timestamp: new Date(),
-        stream: "system",
-        index: globalLogIndex++,
-      });
+      buildEntries("system", `Process exited with code ${exitCode}`);
     },
   });
 
-  handleLogEntry({
-    command: config.id,
-    text: [config.command, ...config.args].join(" "),
-    timestamp: new Date(),
-    stream: "system",
-    index: globalLogIndex++,
-  });
+  buildEntries("system", [config.command, ...config.args].join(" "));
 
   listen(proc.stdout, (chunk) => {
-    handleLogEntry({
-      command: config.id,
-      text: chunk,
-      timestamp: new Date(),
-      stream: "stdout",
-      index: globalLogIndex++,
-    });
+    buildEntries("stdout", chunk);
   });
 
   listen(proc.stderr, (chunk) => {
-    handleLogEntry({
-      command: config.id,
-      text: chunk,
-      timestamp: new Date(),
-      stream: "stderr",
-      index: globalLogIndex++,
-    });
+    buildEntries("stderr", chunk);
   });
 
   return {
