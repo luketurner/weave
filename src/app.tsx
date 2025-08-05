@@ -128,13 +128,13 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   };
 
   const scrollUp = (n: number) => {
-    setScrollOffset((prev) =>
-      Math.min(prev + n, Math.max(0, filteredLogs.length - numLogLines))
-    );
+    setScrollOffset((prev) => Math.max(prev - n, 0));
   };
 
   const scrollDown = (n: number) => {
-    setScrollOffset((prev) => Math.max(prev - n, 0));
+    setScrollOffset((prev) =>
+      Math.min(prev + n, Math.max(0, filteredLogs.length - numLogLines))
+    );
   };
 
   const openSaveModal = () => {
@@ -150,6 +150,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   // Todo -- replace with useState instead of useRef
   if (prevFilteredLogs.current !== filteredLogs) {
     prevFilteredLogs.current = filteredLogs;
+    // When filter changes, keep scroll position valid
     setScrollOffset((prev) =>
       Math.min(prev, Math.max(0, filteredLogs.length - numLogLines))
     );
@@ -225,8 +226,8 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   });
 
   const visibleLogs = filteredLogs.slice(
-    Math.max(0, filteredLogs.length - numLogLines - scrollOffset),
-    filteredLogs.length - scrollOffset
+    scrollOffset,
+    scrollOffset + numLogLines
   );
 
   useEffect(() => {
