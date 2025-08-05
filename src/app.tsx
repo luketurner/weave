@@ -70,6 +70,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const mouseAction = useMouseAction();
   const [scrollDelay, setScrollDelay] = useState(0);
   const [showTimestamps, setShowTimestamps] = useState(true);
+  const [tailMode, setTailMode] = useState(true);
 
   // TODO -- wish this wasn't hardcoded.
   // The 4 is the sum of non-log-line UI elements in the output.
@@ -128,13 +129,22 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   };
 
   const scrollUp = (n: number) => {
-    setScrollOffset((prev) => Math.max(prev - n, 0));
+    const newOffset = Math.max(scrollOffset - n, 0);
+    setScrollOffset(newOffset);
+    // Disable tail mode when user scrolls up
+    if (newOffset < Math.max(0, filteredLogs.length - numLogLines)) {
+      setTailMode(false);
+    }
   };
 
   const scrollDown = (n: number) => {
-    setScrollOffset((prev) =>
-      Math.min(prev + n, Math.max(0, filteredLogs.length - numLogLines))
-    );
+    const maxOffset = Math.max(0, filteredLogs.length - numLogLines);
+    const newOffset = Math.min(scrollOffset + n, maxOffset);
+    setScrollOffset(newOffset);
+    // Enable tail mode when scrolled to bottom
+    if (newOffset >= maxOffset) {
+      setTailMode(true);
+    }
   };
 
   const openSaveModal = () => {
@@ -246,6 +256,14 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     }
   }, [mouseAction, scrollDelay, setScrollDelay, scrollUp, scrollDown]);
 
+  // Auto-scroll to bottom when new logs arrive in tail mode
+  useEffect(() => {
+    if (tailMode) {
+      const maxOffset = Math.max(0, filteredLogs.length - numLogLines);
+      setScrollOffset(maxOffset);
+    }
+  }, [filteredLogs.length, numLogLines, tailMode]);
+
   return (
     <Box
       flexDirection="column"
@@ -331,6 +349,12 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               </TextButton>
             ))}
             <Spacer />
+            {tailMode && (
+              <>
+                <Text color="green">● tail mode</Text>
+                <Text dimColor>/</Text>
+              </>
+            )}
             <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
             <Text dimColor>/</Text>
             <TextButton onClick={toggleTimestamps}>[t]imestamps</TextButton>
