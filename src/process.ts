@@ -71,6 +71,9 @@ async function listen(
 ) {
   const decoder = new TextDecoder("utf-8");
   for await (const chunk of stream) {
-    stripAnsi(decoder.decode(chunk)).split("\n").map(handler);
+    stripAnsi(decoder.decode(chunk))
+      .replace(/\n$/, "")
+      .split("\n")
+      .map(handler);
   }
 }

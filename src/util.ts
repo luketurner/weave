@@ -13,5 +13,6 @@ export function colorForCmd(id: number) {
 }
 
 export function splitIntoChunks(str: string, size: number) {
+  if (str === "") return [""];
   return str.match(new RegExp(".{1," + size + "}", "g")) || [];
 }
