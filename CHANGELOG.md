@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 (2025-08-05)
+
+- Explicitly handle lines that are longer than the max width of the display window.
+- Fix edge case around strings containing only a single newline
+
+---
+
 ## 0.2.0 (2025-08-04)
 
 - Add mouse support (UI elements are clickable, logs can be scrolled with scroll wheel)
