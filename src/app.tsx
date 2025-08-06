@@ -330,7 +330,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
             <Text dimColor>[ret] submit, [esc] cancel</Text>
           </Box>
         ) : (
-          <Box gap={1}>
+          <Box gap={1} height={1}>
             <Box>
               <TextButton
                 inverse={filter === null}
@@ -354,7 +354,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
             <Spacer />
             {tailMode ? (
               <>
-                <Text color="green">● tail mode</Text>
+                <Text color="green">● live</Text>
               </>
             ) : (
               <>
@@ -364,15 +364,13 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               </>
             )}
             <Text dimColor>/</Text>
-            <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
-            <Text dimColor>/</Text>
             <TextButton onClick={toggleTimestamps}>[t]imestamps</TextButton>
             <Text dimColor>/</Text>
             <TextButton onClick={restartFilteredProcesses}>
               [r]estart
             </TextButton>
             <Text dimColor>/</Text>
-            <TextButton onClick={openSaveModal}>[s]ave logs</TextButton>
+            <TextButton onClick={openSaveModal}>[s]ave</TextButton>
             <Text dimColor>/</Text>
             <TextButton onClick={quit}>[q]uit</TextButton>
           </Box>
