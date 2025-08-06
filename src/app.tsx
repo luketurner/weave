@@ -161,11 +161,9 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     setShowHelp((prev) => !prev);
   };
 
-  const prevFilteredLogs = useRef(filteredLogs);
-
-  // Todo -- replace with useState instead of useRef
-  if (prevFilteredLogs.current !== filteredLogs) {
-    prevFilteredLogs.current = filteredLogs;
+  const [prevFilteredLogs, setPrevFilteredLogs] = useState(filteredLogs);
+  if (prevFilteredLogs !== filteredLogs) {
+    setPrevFilteredLogs(filteredLogs);
     // When filter changes, keep scroll position valid
     setScrollOffset((prev) =>
       Math.min(prev, Math.max(0, filteredLogs.length - numLogLines))
