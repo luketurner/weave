@@ -241,12 +241,12 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     }
 
     if (key.leftArrow) {
-      setFilter((prev) => (prev === null ? null : Math.max(prev - 1, 0)));
+      setFilter((prev) => (prev === null || prev === 0 ? null : Math.max(prev - 1, 0)));
     }
 
     if (key.rightArrow) {
       setFilter((prev) =>
-        prev === null ? 0 : Math.min(prev + 1, processConfigs.length)
+        prev === null ? 0 : Math.min(prev + 1, processConfigs.length - 1)
       );
     }
   });
