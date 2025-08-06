@@ -189,6 +189,13 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   }, [processConfigs]);
 
   useInput((input, key) => {
+    // NOTE -- this useInput hook captures mouse inputs as well,
+    // which it feels like it really shouldn't. Filtering them out
+    // up front.
+    if (input.startsWith("[<")) {
+      return;
+    }
+
     if (error) {
       setError("");
       return;
