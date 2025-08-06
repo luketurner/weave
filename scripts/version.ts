@@ -38,7 +38,7 @@ function parseVersion(version: string): {
 
 function calculateNewVersion(
   currentVersion: string,
-  versionInput: string
+  versionInput: string,
 ): string {
   if (
     versionInput === "major" ||
@@ -153,7 +153,7 @@ async function main() {
     const changelog = readFileSync(CHANGELOG_PATH, "utf-8");
     if (changelog.includes(`## ${newVersion}`) && changelog.includes("- \n")) {
       console.error(
-        "Error: Changelog entry appears to be empty. Please add release notes."
+        "Error: Changelog entry appears to be empty. Please add release notes.",
       );
       process.exit(1);
     }

@@ -24,7 +24,7 @@ let globalLogIndex = 0;
 export function spawnProcess(
   config: ProcessConfig,
   handleLogEntry: (e: LogEntry) => void,
-  { maxLineLength }: { maxLineLength: number }
+  { maxLineLength }: { maxLineLength: number },
 ): CommandProcess {
   const buildEntries = (stream: Stream, fullText: string) => {
     const timestamp = new Date();
@@ -67,7 +67,7 @@ export function spawnProcess(
 
 async function listen(
   stream: ReadableStream<Uint8Array>,
-  handler: (chunk: string) => void
+  handler: (chunk: string) => void,
 ) {
   const decoder = new TextDecoder("utf-8");
   for await (const chunk of stream) {
