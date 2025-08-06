@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0 (2025-08-06)
+
+Breaking change:
+
+- Adjusted separator for commands in CLI to be `---` instead of `--`. This fixes some issues with automatic handling of `--` in Bun.
+
+New features / UI changes:
+
+- Added `--help`/`-h` flag.
+- Added "narrow mode" that renders things differently if the terminal is <80 characters.
+- Remove manual show/hide timestamp toggle. Timestamps are now shown by default, and hidden by default in narrow mode.
+- Removed scroll/filter help text from status bar. Added a [h]elp command to display them instead.
+- Added percentage indicator for scroll offset.
+
+---
+
 ## 0.3.0 (2025-08-05)
 
 - Implement "tail mode" so the user can either view live logs as they come in, or look at logs in the scrollback buffer without them moving around.
