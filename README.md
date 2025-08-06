@@ -16,7 +16,7 @@ But you have to run them in separate terminals, tmux windows, or something? Or u
 Well, now you can just do:
 
 ```bash
-weave -- bun run dev -- bun run client:dev
+weave --- bun run dev --- bun run client:dev
 ```
 
 ## Installation
@@ -47,11 +47,14 @@ bun add -g weave@https://github.com/luketurner/weave/releases/download/v0.1.3/we
 ## Usage
 
 ```bash
+# help
+weave --help
+
 # run a single command
-weave -- python -m http.server
+weave --- python -m http.server
 
 # run multiple commands simultaneously
-weave -- bun run watch -- bun run client:watch -- python -m http.server
+weave --- bun run watch --- bun run client:watch --- python -m http.server
 ```
 
 ## Development

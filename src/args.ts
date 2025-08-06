@@ -1,3 +1,5 @@
+import { parseArgs as parseArgsNode } from "util";
+
 export interface ProcessConfig {
   command: string;
   args: string[];
@@ -6,15 +8,26 @@ export interface ProcessConfig {
 
 export interface ParsedArgs {
   processes: ProcessConfig[];
+  help: boolean;
 }
 
 export function parseArgs(args: string[]): ParsedArgs {
   const processes: ProcessConfig[] = [];
   let proc = 0;
+  let isWeaveArg = true;
+  let weaveArgs: string[] = [];
   for (const arg of args) {
-    if (arg === "--") {
-      proc++;
+    if (arg === "---") {
+      if (isWeaveArg) {
+        isWeaveArg = false;
+      } else {
+        proc++;
+      }
     } else {
+      if (isWeaveArg) {
+        weaveArgs.push(arg);
+        continue;
+      }
       if (processes[proc]) {
         processes[proc]!.args.push(arg);
       } else {
@@ -27,7 +40,18 @@ export function parseArgs(args: string[]): ParsedArgs {
     }
   }
 
+  const { values, positionals } = parseArgsNode({
+    args: weaveArgs,
+    options: {
+      help: {
+        type: "boolean",
+        short: "h",
+      },
+    },
+  });
+
   return {
     processes,
+    help: !!values.help,
   };
 }
