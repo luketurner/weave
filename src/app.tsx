@@ -73,6 +73,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const mouseAction = useMouseAction();
   const [scrollDelay, setScrollDelay] = useState(0);
   const [tailMode, setTailMode] = useState(true);
+  const [showHelp, setShowHelp] = useState(false);
   const isNarrow = numColumns < 80;
 
   // TODO -- wish this wasn't hardcoded.
@@ -156,6 +157,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     setSaveModal(true);
   };
 
+  const toggleHelp = () => {
+    setShowHelp((prev) => !prev);
+  };
+
   const prevFilteredLogs = useRef(filteredLogs);
 
   // Todo -- replace with useState instead of useRef
@@ -201,6 +206,11 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
       return;
     }
 
+    if (showHelp) {
+      toggleHelp();
+      return;
+    }
+
     if (saveModal) {
       if (key.escape) {
         setSaveModal(false);
@@ -218,6 +228,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
 
     if (input === "s") {
       openSaveModal();
+    }
+
+    if (input === "h" || input === "?") {
+      setShowHelp(true);
     }
 
     if (key.upArrow) {
@@ -334,6 +348,12 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               <Text dimColor>[any key] hide error</Text>
             </Box>
           )
+        ) : showHelp ? (
+          <Box>
+            <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
+            <Spacer />
+            <Text dimColor>[any key] close help</Text>
+          </Box>
         ) : saveModal ? (
           isNarrow ? (
             <>
@@ -392,6 +412,8 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
                     </>
                   )}
                   <Text dimColor>/</Text>
+                  <TextButton onClick={toggleHelp}>[h]elp</TextButton>
+                  <Text dimColor>/</Text>
                   <TextButton onClick={restartFilteredProcesses}>
                     [r]estart
                   </TextButton>
@@ -416,6 +438,8 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
                   </>
                 )}
                 <Spacer />
+                <TextButton onClick={toggleHelp}>[h]elp</TextButton>
+                <Text dimColor>/</Text>
                 <TextButton onClick={restartFilteredProcesses}>
                   [r]estart
                 </TextButton>
