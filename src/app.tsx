@@ -72,8 +72,8 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const errorTimeout = useRef<NodeJS.Timeout | null>(null);
   const mouseAction = useMouseAction();
   const [scrollDelay, setScrollDelay] = useState(0);
-  const [showTimestamps, setShowTimestamps] = useState(true);
   const [tailMode, setTailMode] = useState(true);
+  const isNarrow = numColumns < 80;
 
   // TODO -- wish this wasn't hardcoded.
   // The 4 is the sum of non-log-line UI elements in the output.
@@ -81,13 +81,15 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   //  - 2 lines for border
   //  - 1 line for filtering / cmd line
   //  - 1 line for the empty line at the bottom of the terminal
-  const numLogLines = numRows - 4;
+  //  - if isNarrow, the filtering/cmd line is two high instead
+  const numLogLines = numRows - 4 - (isNarrow ? 1 : 0);
   // For this we have:
   //  - 13 for timestamp + gap
   //  - 4 for label (e.g. [0]) + gap
   //  - 2 for borders
   //  - 2 for padding
-  const maxLineLength = numColumns - 8 - (showTimestamps ? 13 : 0);
+  //  - if isNarrow, timestamps are hidden
+  const maxLineLength = numColumns - 8 - (isNarrow ? 0 : 13);
 
   const filteredLogs = useMemo(() => {
     return filter === null
@@ -154,10 +156,6 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     setSaveModal(true);
   };
 
-  const toggleTimestamps = () => {
-    setShowTimestamps((prev) => !prev);
-  };
-
   const prevFilteredLogs = useRef(filteredLogs);
 
   // Todo -- replace with useState instead of useRef
@@ -213,10 +211,6 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
 
     if (input === "s") {
       openSaveModal();
-    }
-
-    if (input === "t") {
-      toggleTimestamps();
     }
 
     if (key.upArrow) {
@@ -283,13 +277,13 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               {log.continuation ? (
                 // don't show timestamp/etc. for continuations,
                 // but maintain the same alignment with this spacer
-                <Box width={3 + (showTimestamps ? 13 : 0)}>
+                <Box width={3 + (isNarrow ? 0 : 13)}>
                   <Spacer />
                   <Text>...</Text>
                 </Box>
               ) : (
                 <>
-                  {showTimestamps ? (
+                  {isNarrow ? null : (
                     <Box flexShrink={0}>
                       <Text dimColor>
                         {log.timestamp.toLocaleTimeString(undefined, {
@@ -301,7 +295,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
                         })}
                       </Text>
                     </Box>
-                  ) : null}
+                  )}
                   <Box flexShrink={0}>
                     <Text color={colorForCmd(log.command) || "white"}>
                       [{log.command}]
@@ -317,63 +311,114 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
         )}
         <Spacer />
         {error ? (
-          <Box>
-            <Text color="redBright">{error}</Text>
-            <Spacer />
-            <Text dimColor>[any key] hide error</Text>
-          </Box>
-        ) : saveModal ? (
-          <Box gap={1}>
-            <Text>Save to file:</Text>
-            <SafeUncontrolledTextInput onSubmit={handleSaveFile} />
-            <Spacer />
-            <Text dimColor>[ret] submit, [esc] cancel</Text>
-          </Box>
-        ) : (
-          <Box gap={1} height={1}>
+          isNarrow ? (
+            <>
+              <Box>
+                <Text color="redBright">{error}</Text>
+              </Box>
+              <Box>
+                <Text dimColor>[any key] hide error</Text>
+              </Box>
+            </>
+          ) : (
             <Box>
-              <TextButton
-                inverse={filter === null}
-                bold={filter === null}
-                onClick={() => setFilter(null)}
-              >
-                All
-              </TextButton>
+              <Text color="redBright">{error}</Text>
+              <Spacer />
+              <Text dimColor>[any key] hide error</Text>
             </Box>
-            {processConfigs.map((cmd) => (
-              <TextButton
-                key={cmd.id}
-                inverse={filter === cmd.id}
-                bold={filter === cmd.id}
-                color={colorForCmd(cmd.id)}
-                onClick={() => setFilter(cmd.id)}
-              >
-                [{cmd.id}] {cmd.command.substring(0, 10)}
-              </TextButton>
-            ))}
-            <Spacer />
-            {tailMode ? (
-              <>
-                <Text color="green">● live</Text>
-              </>
-            ) : (
-              <>
-                <Text dimColor>
-                  {Math.round((scrollOffset / filteredLogs.length) * 100)}%
-                </Text>
-              </>
-            )}
-            <Text dimColor>/</Text>
-            <TextButton onClick={toggleTimestamps}>[t]imestamps</TextButton>
-            <Text dimColor>/</Text>
-            <TextButton onClick={restartFilteredProcesses}>
-              [r]estart
-            </TextButton>
-            <Text dimColor>/</Text>
-            <TextButton onClick={openSaveModal}>[s]ave</TextButton>
-            <Text dimColor>/</Text>
-            <TextButton onClick={quit}>[q]uit</TextButton>
-          </Box>
+          )
+        ) : saveModal ? (
+          isNarrow ? (
+            <>
+              <Box>
+                <Text>Save to file: </Text>
+                <SafeUncontrolledTextInput onSubmit={handleSaveFile} />
+              </Box>
+              <Box>
+                <Text dimColor>[ret] submit / [esc] cancel</Text>
+              </Box>
+            </>
+          ) : (
+            <Box gap={1}>
+              <Text>Save to file:</Text>
+              <SafeUncontrolledTextInput onSubmit={handleSaveFile} />
+              <Spacer />
+              <Text dimColor>[ret] submit / [esc] cancel</Text>
+            </Box>
+          )
+        ) : (
+          <>
+            <Box columnGap={1} height={1} flexWrap="wrap">
+              <Box>
+                <TextButton
+                  inverse={filter === null}
+                  bold={filter === null}
+                  onClick={() => setFilter(null)}
+                >
+                  All
+                </TextButton>
+              </Box>
+              {processConfigs.map((cmd) => (
+                <TextButton
+                  key={cmd.id}
+                  inverse={filter === cmd.id}
+                  bold={filter === cmd.id}
+                  color={colorForCmd(cmd.id)}
+                  onClick={() => setFilter(cmd.id)}
+                >
+                  [{cmd.id}] {cmd.command.substring(0, 10)}
+                </TextButton>
+              ))}
+              {isNarrow ? null : (
+                <>
+                  <Spacer />
+                  {tailMode ? (
+                    <>
+                      <Text color="green">● live</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text dimColor>
+                        {Math.round((scrollOffset / filteredLogs.length) * 100)}
+                        %
+                      </Text>
+                    </>
+                  )}
+                  <Text dimColor>/</Text>
+                  <TextButton onClick={restartFilteredProcesses}>
+                    [r]estart
+                  </TextButton>
+                  <Text dimColor>/</Text>
+                  <TextButton onClick={openSaveModal}>[s]ave</TextButton>
+                  <Text dimColor>/</Text>
+                  <TextButton onClick={quit}>[q]uit</TextButton>
+                </>
+              )}
+            </Box>
+            {isNarrow ? (
+              <Box height={1} columnGap={1}>
+                {tailMode ? (
+                  <>
+                    <Text color="green">● live</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text dimColor>
+                      {Math.round((scrollOffset / filteredLogs.length) * 100)}%
+                    </Text>
+                  </>
+                )}
+                <Spacer />
+                <TextButton onClick={restartFilteredProcesses}>
+                  [r]estart
+                </TextButton>
+                <Text dimColor>/</Text>
+                <TextButton onClick={openSaveModal}>[s]ave</TextButton>
+                <Text dimColor>/</Text>
+                <TextButton onClick={quit}>[q]uit</TextButton>
+              </Box>
+            ) : null}
+          </>
         )}
       </Box>
     </Box>
