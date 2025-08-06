@@ -352,12 +352,18 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               </TextButton>
             ))}
             <Spacer />
-            {tailMode && (
+            {tailMode ? (
               <>
                 <Text color="green">● tail mode</Text>
-                <Text dimColor>/</Text>
+              </>
+            ) : (
+              <>
+                <Text dimColor>
+                  {Math.round((scrollOffset / filteredLogs.length) * 100)}%
+                </Text>
               </>
             )}
+            <Text dimColor>/</Text>
             <Text dimColor>[↑/↓] scroll / [←/→] filter</Text>
             <Text dimColor>/</Text>
             <TextButton onClick={toggleTimestamps}>[t]imestamps</TextButton>
