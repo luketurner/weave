@@ -87,10 +87,9 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   // For this we have:
   //  - 13 for timestamp + gap
   //  - 4 for label (e.g. [0]) + gap
-  //  - 2 for borders
   //  - 2 for padding
   //  - if isNarrow, timestamps are hidden
-  const maxLineLength = numColumns - 8 - (isNarrow ? 0 : 13);
+  const maxLineLength = numColumns - 6 - (isNarrow ? 0 : 13);
 
   const filteredLogs = useMemo(() => {
     return filter === null
@@ -286,8 +285,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
     <Box
       flexDirection="column"
       height={numRows - 1}
-      borderStyle="single"
+      borderStyle="double"
       borderColor="gray"
+      borderLeft={false}
+      borderRight={false}
       paddingX={1}
     >
       {visibleLogs.length === 0 ? (
