@@ -39,10 +39,15 @@ bun add -g weave@https://github.com/luketurner/weave/releases/download/v0.1.3/we
 
 - Runs multiple commands at once in separate processes, and interleave their output together in a TUI window.
 - Outputs in the log are prefixed with a colorized number like `[0]` to indicate which command they come from.
+- Unlimited scrollback buffer (well, until you run out of memory!)
+- Scroll through logs with arrow keys or your mouse wheel.
 - Filter log output to individual processes.
 - Restart one or all processes.
 - Save output to a file.
-- Full mouse support (scrolling, clicking on buttons) -- doesn't work on Windows.
+- Works with both keyboard-driven and mouse-driven workflow -- all buttons are clickable as well as having a keybind.
+
+> [!WARNING]
+> Mouse support doesn't work on Windows.
 
 ## Usage
 
