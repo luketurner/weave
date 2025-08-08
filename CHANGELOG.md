@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1 (2025-08-08)
+
+- Fixed boundary conditions for using left/right arrows to navigate filters
+- "Fix" spacing issue with emoji + borders (https://github.com/vadimdemedes/ink/issues/733) by removing left/right borders.
+
+---
+
 ## 0.4.0 (2025-08-06)
 
 Breaking change:
