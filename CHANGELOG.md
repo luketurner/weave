@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 (2025-08-12)
+
+- Switch deploy pipeline to use bakery 
+
+---
+
 ## 0.4.1 (2025-08-08)
 
 - Fixed boundary conditions for using left/right arrows to navigate filters
