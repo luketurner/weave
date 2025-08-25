@@ -23,16 +23,16 @@ weave --- bun run dev --- bun run client:dev
 
 Download the binary for your platform from the [latest release](https://github.com/luketurner/weave/releases/latest).
 
-Or if you're using `bun` you can install it as a dependency (this won't work with `node`):
+Or use `bun` to install it (note this won't work with node/npm):
 
 ```bash
-bun add git+https://github.com/luketurner/weave.git
+bun add -g @luketurner/weave
 ```
 
-You can also install a specific version globally using the released tarballs:
+If you are using `weave` in your package.json scripts, I recommend installing it as a local dependency of the package instead:
 
 ```bash
-bun add -g weave@https://github.com/luketurner/weave/releases/download/v0.1.3/weave-pkg.tar.gz
+bun add --dev @luketurner/weave
 ```
 
 ## Features
