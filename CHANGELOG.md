@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 (2025-08-25)
+
+- Publish to `@luketurner/weave` on npm
+
+---
+
 ## 0.5.0 (2025-08-12)
 
 - Switch deploy pipeline to use bakery 
