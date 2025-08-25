@@ -16,8 +16,8 @@
     "dev": "bun src/index.tsx"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "bakery": "git+https://github.com/luketurner/bakery.git"
+    "@luketurner/bakery": "^0.1.3",
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
