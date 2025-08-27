@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1 (2025-08-27)
+
+- Update some metadata in package.json
+- Update README
+
+---
+
 ## 0.7.0 (2025-08-27)
 
 - Allow `esc` to quit
