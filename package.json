@@ -4,6 +4,7 @@
   "version": "0.7.0",
   "module": "src/index.tsx",
   "type": "module",
+  "license": "MIT",
   "bin": {
     "weave": "./bin/weave"
   },
