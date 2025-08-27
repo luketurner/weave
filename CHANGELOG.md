@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 (2025-08-27)
+
+- Allow `esc` to quit
+- Add -M/--no-mouse option to disable mouse support
+- Add mouse toggle in the UI and via the `m` key.
+- Adjust logging when user provides invalid arguments/options
+
+---
+
 ## 0.6.0 (2025-08-25)
 
 - Publish to `@luketurner/weave` on npm
