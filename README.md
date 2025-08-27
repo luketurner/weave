@@ -21,15 +21,16 @@ weave --- bun run dev --- bun run client:dev
 
 ## Installation
 
-Download the binary for your platform from the [latest release](https://github.com/luketurner/weave/releases/latest).
+Three options for installation:
 
-Or use `bun` to install it (note this won't work with node/npm):
+1. Download the binary for your platform from the [latest release](https://github.com/luketurner/weave/releases/latest).
+2. Use `bun` to install it (note this won't work with node/npm):
 
 ```bash
 bun add -g @luketurner/weave
 ```
 
-If you are using `weave` in your package.json scripts, I recommend installing it as a local dependency of the package instead:
+3. If you are using `weave` in your package.json scripts, I recommend installing it as a local dependency of the package instead:
 
 ```bash
 bun add --dev @luketurner/weave
@@ -62,7 +63,19 @@ weave --- python -m http.server
 weave --- bun run watch --- bun run client:watch --- python -m http.server
 ```
 
+## Known issues
+
+See https://github.com/luketurner/weave/issues
+
 ## Development
+
+Clone this repository, then run:
+
+```bash
+bun install
+```
+
+Common commands:
 
 ```bash
 # run script
@@ -71,6 +84,10 @@ bun run dev
 # or:
 bin/weave
 
+# compile/format
+bun run compile
+bun run format
+
 # release a new version
-bun run release:new [VERSION]
+bun run bakery version [VERSION]
 ```
