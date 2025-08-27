@@ -8,7 +8,7 @@
 
 ## 0.5.0 (2025-08-12)
 
-- Switch deploy pipeline to use bakery 
+- Switch deploy pipeline to use bakery
 
 ---
 
