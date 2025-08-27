@@ -1,5 +1,6 @@
 {
   "name": "@luketurner/weave",
+  "description": "A TUI for running multiple long-running commands at once and weaving together their output",
   "version": "0.6.0",
   "module": "src/index.tsx",
   "type": "module",
