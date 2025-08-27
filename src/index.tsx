@@ -13,7 +13,8 @@ if (args.help) {
 ${chalk.bold("Usage: weave [...args] --- [cmd] [...args] --- [cmd] [...args]")}
 
 ${chalk.bold("Flags:")}
-  ${chalk.blue("-h, --help")}    Display help text and exit.
+  ${chalk.blue("-h, --help")}       Display help text and exit.
+  ${chalk.blue("-M, --no-mouse")}   Disable mouse support.
 
 ${chalk.bold("Examples:")}
   ${chalk.dim("Display help")}
@@ -33,7 +34,7 @@ ${chalk.bold(`For more information, see ${chalk.underline("https://github.com/lu
 const Root = () => {
   return (
     <MouseProvider>
-      <App processConfigs={args.processes} />
+      <App processConfigs={args.processes} noMouse={args.noMouse} />
     </MouseProvider>
   );
 };

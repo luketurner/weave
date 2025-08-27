@@ -23,6 +23,7 @@ import stripAnsi from "strip-ansi";
 
 export interface AppProps {
   processConfigs: ProcessConfig[];
+  noMouse: boolean;
 }
 
 interface TextButtonProps extends TextProps {
@@ -61,7 +62,7 @@ function SafeUncontrolledTextInput(props: Omit<Props, "value" | "onChange">) {
   );
 }
 
-export const App: React.FC<AppProps> = ({ processConfigs }) => {
+export const App: React.FC<AppProps> = ({ processConfigs, noMouse }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [filter, setFilter] = useState<number | null>(null);
@@ -233,7 +234,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
       setShowHelp(true);
     }
 
-    if (input === "m") {
+    if (input === "m" && !noMouse) {
       mouse.toggle();
     }
 
@@ -286,6 +287,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
       setScrollOffset(maxOffset);
     }
   }, [filteredLogs.length, numLogLines, tailMode]);
+
+  if (noMouse) {
+    mouse.disable();
+  }
 
   return (
     <Box
@@ -420,10 +425,14 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
                 <Text dimColor>/</Text>
                 <TextButton onClick={toggleHelp}>[h]elp</TextButton>
                 <Text dimColor>/</Text>
-                <TextButton onClick={() => mouse.toggle()}>
-                  [m]ouse {mouse.status === "enabled" ? "on" : "off"}
-                </TextButton>
-                <Text dimColor>/</Text>
+                {!noMouse ? (
+                  <>
+                    <TextButton onClick={() => mouse.toggle()}>
+                      [m]ouse {mouse.status === "enabled" ? "on" : "off"}
+                    </TextButton>
+                    <Text dimColor>/</Text>
+                  </>
+                ) : null}
                 <TextButton onClick={restartFilteredProcesses}>
                   [r]estart
                 </TextButton>
@@ -450,10 +459,14 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               <Spacer />
               <TextButton onClick={toggleHelp}>[h]elp</TextButton>
               <Text dimColor>/</Text>
-              <TextButton onClick={() => mouse.toggle()}>
-                [m]ouse {mouse.status === "enabled" ? "on" : "off"}
-              </TextButton>
-              <Text dimColor>/</Text>
+              {!noMouse ? (
+                <>
+                  <TextButton onClick={() => mouse.toggle()}>
+                    [m]ouse {mouse.status === "enabled" ? "on" : "off"}
+                  </TextButton>
+                  <Text dimColor>/</Text>
+                </>
+              ) : null}
               <TextButton onClick={restartFilteredProcesses}>
                 [r]estart
               </TextButton>

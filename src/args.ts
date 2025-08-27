@@ -9,6 +9,7 @@ export interface ProcessConfig {
 export interface ParsedArgs {
   processes: ProcessConfig[];
   help: boolean;
+  noMouse: boolean;
 }
 
 export function parseArgs(args: string[]): ParsedArgs {
@@ -47,11 +48,16 @@ export function parseArgs(args: string[]): ParsedArgs {
         type: "boolean",
         short: "h",
       },
+      "no-mouse": {
+        type: "boolean",
+        short: "M",
+      },
     },
   });
 
   return {
     processes,
     help: !!values.help,
+    noMouse: !!values["no-mouse"],
   };
 }
