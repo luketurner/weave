@@ -8,9 +8,6 @@
     "weave": "./bin/weave"
   },
   "scripts": {
-    "build": "bun run scripts/build.ts",
-    "release": "bun run scripts/release.ts",
-    "release:new": "bun run scripts/version.ts",
     "compile": "tsc",
     "format": "prettier --write .",
     "dev": "bun src/index.tsx"
