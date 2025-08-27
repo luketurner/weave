@@ -24,7 +24,7 @@ weave --- bun run dev --- bun run client:dev
 Three options for installation:
 
 1. Download the binary for your platform from the [latest release](https://github.com/luketurner/weave/releases/latest).
-2. Use `bun` to install it (note this won't work with node/npm):
+2. Use `bun` or `npm` to install it:
 
 ```bash
 bun add -g @luketurner/weave
@@ -34,6 +34,12 @@ bun add -g @luketurner/weave
 
 ```bash
 bun add --dev @luketurner/weave
+```
+
+If you want to test it out without installing, use `bunx`/`npx`, e.g.
+
+```bash
+bunx @luketurner/weave --help
 ```
 
 ## Features
@@ -62,6 +68,20 @@ weave --- python -m http.server
 # run multiple commands simultaneously
 weave --- bun run watch --- bun run client:watch --- python -m http.server
 ```
+
+## How do I do this with `tmux`?
+
+You don't need `weave` to solve this problem, it just makes things a bit friendlier and adds some extra features.
+
+An alternative approach with `tmux`:
+
+```bash
+tmux \
+new-session  'bun run dev' \; \
+split-window -h 'bun run client:dev' \;
+```
+
+Credit to [this StackOverflow answer](https://unix.stackexchange.com/a/292174)
 
 ## Known issues
 
