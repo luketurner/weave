@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import { parseArgs as parseArgsNode } from "util";
 
 export interface ProcessConfig {
@@ -41,23 +42,56 @@ export function parseArgs(args: string[]): ParsedArgs {
     }
   }
 
-  const { values, positionals } = parseArgsNode({
-    args: weaveArgs,
-    options: {
-      help: {
-        type: "boolean",
-        short: "h",
+  try {
+    const { values, positionals } = parseArgsNode({
+      args: weaveArgs,
+      options: {
+        help: {
+          type: "boolean",
+          short: "h",
+        },
+        "no-mouse": {
+          type: "boolean",
+          short: "M",
+        },
       },
-      "no-mouse": {
-        type: "boolean",
-        short: "M",
-      },
-    },
-  });
+    });
 
-  return {
-    processes,
-    help: !!values.help,
-    noMouse: !!values["no-mouse"],
-  };
+    if (values.help) {
+      showHelp();
+      process.exit(0);
+    }
+
+    return {
+      processes,
+      help: !!values.help,
+      noMouse: !!values["no-mouse"],
+    };
+  } catch (e) {
+    console.log((e as Error).message);
+    process.exit(1);
+  }
+}
+
+function showHelp() {
+  console.log(`${chalk.bold(chalk.green("weave"))} is a TUI for running multiple commands at once and monitoring their output.
+      
+  ${chalk.bold("Usage: weave [...args] --- [cmd] [...args] --- [cmd] [...args]")}
+
+  ${chalk.bold("Flags:")}
+    ${chalk.blue("-h, --help")}       Display help text and exit.
+    ${chalk.blue("-M, --no-mouse")}   Disable mouse support.
+
+  ${chalk.bold("Examples:")}
+    ${chalk.dim("Display help")}
+    weave --help
+
+    ${chalk.dim("Run a single command")}
+    weave --- tail -f logfile.txt
+
+    ${chalk.dim("Run multiple commands")}
+    weave --- bun run watch --- python -m http.server
+
+  ${chalk.bold(`For more information, see ${chalk.underline("https://github.com/luketurner/weave")}`)}
+  `);
 }
