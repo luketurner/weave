@@ -217,7 +217,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
       return;
     }
 
-    if (input === "q" || (key.ctrl && input === "c")) {
+    if (input === "q" || (key.ctrl && input === "c") || key.escape) {
       quit();
     }
 
