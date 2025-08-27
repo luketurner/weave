@@ -17,6 +17,7 @@ import {
   useMouseAction,
   useOnMouseClick,
   useOnMouseHover,
+  useMouse,
 } from "ink-mouse-alt";
 import stripAnsi from "strip-ansi";
 
@@ -74,6 +75,7 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
   const [scrollDelay, setScrollDelay] = useState(0);
   const [tailMode, setTailMode] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
+  const mouse = useMouse();
   const isNarrow = numColumns < 80;
 
   // TODO -- wish this wasn't hardcoded.
@@ -229,6 +231,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
 
     if (input === "h" || input === "?") {
       setShowHelp(true);
+    }
+
+    if (input === "m") {
+      mouse.toggle();
     }
 
     if (key.upArrow) {
@@ -414,6 +420,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
                 <Text dimColor>/</Text>
                 <TextButton onClick={toggleHelp}>[h]elp</TextButton>
                 <Text dimColor>/</Text>
+                <TextButton onClick={() => mouse.toggle()}>
+                  [m]ouse {mouse.status === "enabled" ? "on" : "off"}
+                </TextButton>
+                <Text dimColor>/</Text>
                 <TextButton onClick={restartFilteredProcesses}>
                   [r]estart
                 </TextButton>
@@ -439,6 +449,10 @@ export const App: React.FC<AppProps> = ({ processConfigs }) => {
               )}
               <Spacer />
               <TextButton onClick={toggleHelp}>[h]elp</TextButton>
+              <Text dimColor>/</Text>
+              <TextButton onClick={() => mouse.toggle()}>
+                [m]ouse {mouse.status === "enabled" ? "on" : "off"}
+              </TextButton>
               <Text dimColor>/</Text>
               <TextButton onClick={restartFilteredProcesses}>
                 [r]estart
